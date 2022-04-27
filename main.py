@@ -12,6 +12,8 @@ def main():
     team_df = pd.read_sql_query("select * from Team", cnx)
     team_att_df = pd.read_sql_query("select * from Team_Attributes", cnx)
 
+    
+
 
 
     print(country_df)
