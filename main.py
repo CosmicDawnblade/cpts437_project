@@ -2,16 +2,10 @@ import sqlite3
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import Perceptron
+from sklearn.metrics import accuracy_score
 
-
-def matches_label(matches):
-    labels = pd.DataFrame()
-    labels.insert(0, 'match_api_id', matches['match_api_id'])
-    labels['result'] = np.where(matches['home_team_goal'] > matches['away_team_goal'], 'Win', 'Lose')
-    return labels
 
 def main():
-    # Parsing from sql file to panda's df's
     cnx = sqlite3.connect('database.sqlite')
     country_df = pd.read_sql_query("select * from Country", cnx)
     league_df = pd.read_sql_query("select * from League", cnx)
@@ -21,12 +15,42 @@ def main():
     team_df = pd.read_sql_query("select * from Team", cnx)
     team_att_df = pd.read_sql_query("select * from Team_Attributes", cnx)
 
-    # Create labels for matches
-    #print(match_df['id'])
-    labels = matches_label(match_df)
-    print(labels)
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+
+    match_fil_df = match_df[['home_team_api_id', 'stage', 'home_team_goal', 'away_team_goal']]
+
+    X = team_att_df[['team_api_id', 'date', 'buildUpPlaySpeed', 'buildUpPlayDribbling', 'buildUpPlayPassing',
+                     'chanceCreationPassing', 'chanceCreationCrossing', 'chanceCreationShooting', 'defencePressure',
+                     'defenceAggression', 'defenceTeamWidth']]
+    # X = X.groupby(['team_api_id'])['date'].transform(max)
+    X = X.sort_values('date', ascending=False).drop_duplicates(['team_api_id'])
+    X = X.sort_values('team_api_id')
+    X = X.drop('date', axis=1)
+    X = pd.merge(match_fil_df, X, left_on='home_team_api_id', right_on='team_api_id')
+    X = X.drop(['home_team_api_id', 'team_api_id'], axis=1)
+
+    X_train = X[:int(len(X) * 0.8)]
+    X_test = X[int((len(X) * 0.8)):]
+
+    y = pd.DataFrame()
+    y['match_result'] = np.where(X['home_team_goal'] > X['away_team_goal'], 1, 0)
+
+    y_train = y[:int(len(y) * 0.8)]
+    y_test = y[int(len(y) * 0.8):]
+
+    print(X.head(10))
+    print(y.head(10))
 
 
+    clf = Perceptron()
+    # TRAINING
+    clf.fit(X_train, y_train)
+
+    # TESTING
+    y_pred = clf.predict(X_test)
+    score = accuracy_score(y_test, y_pred)
+    print("Testing accuracy", score)
 
 if __name__ == "__main__":
     main()
