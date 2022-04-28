@@ -29,9 +29,6 @@ def main():
     X = X.drop('date', axis=1)
     X = pd.merge(match_fil_df, X, left_on='home_team_api_id', right_on='team_api_id')
     X = X.drop(['home_team_api_id', 'team_api_id'], axis=1)
-
-    # X_non_avg =
-    # X_avg =
     X['mean_rows'] = X.mean(axis=1)
 
     for column in X:
@@ -40,7 +37,7 @@ def main():
     y = pd.DataFrame()
     y['match_result'] = np.where(X['home_team_goal'] > X['away_team_goal'], 1, 0)
 
-    X = X.drop(['home_team_goal', 'away_team_goal'], axis=1)
+    X = X.drop(['home_team_goal', 'away_team_goal', 'mean_rows'], axis=1)
 
     X_train = X[:int(len(X) * 0.8)]
     X_test = X[int((len(X) * 0.8)):]
