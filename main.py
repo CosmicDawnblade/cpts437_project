@@ -95,6 +95,14 @@ def main():
     # decision tree, and the best one being Gaussian Naives Bayes, barely beating out the Perceptron classifier.
     # However, when the training data size is changed to 80% from 90% that is when the difference
     # is more notable and Gaussian Naives Bayes becomes the clear winner.
+
+    # Because the perceptron eventually converged the number of epochs did not matter after a certain
+    # point. Interestingly however, by default the perceptron classifier shuffles the training data after each epoch
+    # and this causes the classifier to take longer to converge compared to not shuffling the data.
+
+    # Reducing the maximum depth of the decision tree classifier didn't change accuracy significantly, it stayed
+    # very consistent across the board.
+
     print("\nPerceptron testing accuracy", clf_score)
     print("Decision Tree testing accuracy", dtc_score)
     print("Gaussian Naives Bayes  testing accuracy", gnbc_score)
