@@ -137,5 +137,9 @@ def main():
     print('Perceptron was', clf_score - gnbc_score, '% more accurate than gaussian naives bayes')
 
 
+    # print(X.head(10))
+    # print(y.head(10))
+
+
 if __name__ == "__main__":
     main()
